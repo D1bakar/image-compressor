@@ -9,10 +9,10 @@
 
 /* Base */
 body {
-    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-    color: #2d3436;
-    background: #e0e5ec;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    color: #000000;
+    background: #f5f0e8;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -20,115 +20,110 @@ body {
 
 /* Header */
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
-    padding: 2.5rem 1.5rem;
+    background: #ffe156;
+    color: #000000;
+    padding: 2rem 1.5rem;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    border-bottom: 4px solid #000000;
 }
 
 .logo {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 0.4rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
 }
 
 .description {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 400;
+    font-weight: 500;
+    color: #333333;
 }
 
 /* Main */
 .main {
     flex: 1;
     width: 100%;
-    max-width: 680px;
+    max-width: 700px;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem;
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
+    gap: 1.5rem;
 }
 
-/* Neumorphism Card */
+/* Neobrutalist Card */
 .upload-area,
 .controls,
 .result-area {
-    background: #e0e5ec;
-    border-radius: 20px;
-    padding: 1.75rem;
-    box-shadow:
-        8px 8px 16px #b8bec7,
-        -8px -8px 16px #ffffff;
-    transition: box-shadow 0.3s ease;
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 0;
+    padding: 1.5rem;
+    box-shadow: 6px 6px 0px #000000;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 /* Upload dropzone */
 .upload-dropzone {
-    background: #e0e5ec;
-    border: none;
-    border-radius: 16px;
-    padding: 3.5rem 1.5rem;
+    background: #f5f0e8;
+    border: 3px dashed #000000;
+    padding: 3rem 1rem;
     text-align: center;
     cursor: pointer;
-    box-shadow:
-        inset 4px 4px 8px #b8bec7,
-        inset -4px -4px 8px #ffffff;
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
 }
 
 .upload-dropzone:hover {
-    box-shadow:
-        inset 2px 2px 5px #b8bec7,
-        inset -2px -2px 5px #ffffff;
+    background: #ffe156;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px #000000;
 }
 
 .upload-dropzone.dragover {
-    box-shadow:
-        inset 6px 6px 12px #b8bec7,
-        inset -6px -6px 12px #ffffff;
-    background: linear-gradient(135deg, #e8ecf3 0%, #d8dde4 100%);
+    background: #a8e6cf;
+    border-style: solid;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .dropzone-icon {
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
     margin: 0 auto 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ff6b6b;
+    border: 3px solid #000000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow:
-        4px 4px 8px #b8bec7,
-        -4px -4px 8px #ffffff;
+    box-shadow: 4px 4px 0px #000000;
 }
 
 .dropzone-icon svg {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     fill: none;
-    stroke: #ffffff;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke: #000000;
+    stroke-width: 3;
+    stroke-linecap: square;
 }
 
 .dropzone-text {
     display: block;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2d3436;
-    margin-bottom: 0.3rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
 }
 
 .dropzone-subtext {
     display: block;
     font-size: 0.9rem;
-    color: #636e72;
+    font-weight: 600;
+    color: #333333;
 }
 
 .file-input {
@@ -140,41 +135,40 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem 1rem;
 }
 
 .target-size-label {
-    font-weight: 600;
+    font-weight: 800;
     font-size: 0.9rem;
-    color: #2d3436;
+    color: #000000;
     white-space: nowrap;
+    text-transform: uppercase;
 }
 
 .target-size-input {
     width: 110px;
-    padding: 0.65rem 0.85rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #2d3436;
-    background: #e0e5ec;
-    border: none;
-    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000000;
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 0;
     outline: none;
-    box-shadow:
-        inset 3px 3px 6px #b8bec7,
-        inset -3px -3px 6px #ffffff;
-    transition: all 0.3s ease;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .target-size-input:focus {
-    box-shadow:
-        inset 4px 4px 8px #b0b5be,
-        inset -4px -4px 8px #ffffff;
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #000000;
+    background: #ffe156;
 }
 
 .target-size-input option {
-    background: #e0e5ec;
-    color: #2d3436;
+    background: #ffffff;
+    color: #000000;
 }
 
 .custom-size-input {
@@ -187,52 +181,52 @@ body {
 
 .format-note {
     font-size: 0.8rem;
-    color: #636e72;
+    font-weight: 600;
+    color: #333333;
     text-align: center;
     margin-top: -0.5rem;
-    font-style: italic;
+    padding: 0.5rem;
+    background: #ff6b6b;
+    border: 2px solid #000000;
+    color: #000000;
 }
 
 /* Buttons base */
 .compress-button,
 .download-button {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 800;
     padding: 0.75rem 1.75rem;
-    border: none;
-    border-radius: 14px;
+    border: 3px solid #000000;
+    border-radius: 0;
     cursor: pointer;
-    transition: all 0.25s ease;
+    text-transform: uppercase;
     letter-spacing: 0.02em;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .compress-button {
     margin-left: auto;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
-    box-shadow:
-        4px 4px 8px #b8bec7,
-        -2px -2px 6px #ffffff;
+    background: #4ecdc4;
+    color: #000000;
+    box-shadow: 4px 4px 0px #000000;
 }
 
 .compress-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow:
-        6px 6px 12px #b8bec7,
-        -3px -3px 8px #ffffff;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000000;
 }
 
 .compress-button:active:not(:disabled) {
-    transform: translateY(1px);
-    box-shadow:
-        inset 3px 3px 6px rgba(0, 0, 0, 0.1),
-        inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .compress-button:disabled {
-    background: linear-gradient(135deg, #a0a8b4 0%, #8e96a0 100%);
+    background: #cccccc;
     cursor: not-allowed;
     box-shadow: none;
+    color: #666666;
 }
 
 .compress-button.loading {
@@ -249,10 +243,10 @@ body {
     width: 20px;
     height: 20px;
     margin: -10px 0 0 -10px;
-    border: 2.5px solid #ffffff;
+    border: 3px solid #000000;
     border-top-color: transparent;
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
@@ -265,22 +259,22 @@ body {
 .result-area {
     display: none;
     flex-direction: column;
-    gap: 1.5rem;
-    animation: slideUp 0.4s ease;
+    gap: 1.25rem;
 }
 
 .result-area.visible {
     display: flex;
+    animation: popIn 0.2s ease;
 }
 
-@keyframes slideUp {
-    from {
+@keyframes popIn {
+    0% {
         opacity: 0;
-        transform: translateY(20px);
+        transform: scale(0.95);
     }
-    to {
+    100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
     }
 }
 
@@ -289,23 +283,25 @@ body {
 }
 
 .preview-title {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #636e72;
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.08em;
+    color: #000000;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    background: #ffe156;
+    padding: 0.25rem 0.75rem;
+    border: 2px solid #000000;
 }
 
 .preview-image {
     display: inline-block;
     max-width: 100%;
     max-height: 260px;
-    border-radius: 12px;
+    border: 3px solid #000000;
     object-fit: contain;
-    box-shadow:
-        6px 6px 12px #b8bec7,
-        -6px -6px 12px #ffffff;
+    box-shadow: 4px 4px 0px #000000;
 }
 
 /* File info */
@@ -313,100 +309,92 @@ body {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 1rem 2rem;
-    padding: 1rem 1.5rem;
-    background: #e0e5ec;
-    border-radius: 14px;
-    box-shadow:
-        inset 3px 3px 6px #b8bec7,
-        inset -3px -3px 6px #ffffff;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem;
+    background: #a8e6cf;
+    border: 3px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
 }
 
 .info-item {
     font-size: 0.9rem;
-    color: #636e72;
+    font-weight: 600;
+    color: #000000;
 }
 
 .info-item span {
-    font-weight: 700;
-    color: #2d3436;
+    font-weight: 900;
 }
 
 /* Download button */
 .download-button {
     align-self: center;
-    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
-    color: #ffffff;
-    box-shadow:
-        4px 4px 8px #b8bec7,
-        -2px -2px 6px #ffffff;
+    background: #ffe156;
+    color: #000000;
+    box-shadow: 4px 4px 0px #000000;
 }
 
 .download-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow:
-        6px 6px 12px #b8bec7,
-        -3px -3px 8px #ffffff;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000000;
 }
 
 .download-button:active:not(:disabled) {
-    transform: translateY(1px);
-    box-shadow:
-        inset 3px 3px 6px rgba(0, 0, 0, 0.1),
-        inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .download-button:disabled {
-    background: linear-gradient(135deg, #a0a8b4 0%, #8e96a0 100%);
+    background: #cccccc;
     cursor: not-allowed;
     box-shadow: none;
+    color: #666666;
 }
 
 /* Footer */
 .footer {
-    background: linear-gradient(135deg, #2d3436 0%, #1a1a2e 100%);
-    color: #a0a8b4;
+    background: #000000;
+    color: #ffffff;
     text-align: center;
-    padding: 1.25rem;
-    font-size: 0.8rem;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-top: 4px solid #000000;
 }
 
 /* Responsive - mobile */
 @media (max-width: 600px) {
     .header {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
     }
 
     .logo {
-        font-size: 1.6rem;
+        font-size: 1.7rem;
     }
 
     .main {
-        padding: 1.5rem 1rem;
-        gap: 1.25rem;
+        padding: 1.25rem 0.75rem;
+        gap: 1rem;
     }
 
     .upload-area,
     .controls,
     .result-area {
         padding: 1.25rem;
-        border-radius: 16px;
     }
 
     .upload-dropzone {
-        padding: 2.5rem 1rem;
-        border-radius: 14px;
+        padding: 2rem 0.75rem;
     }
 
     .dropzone-icon {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
     }
 
     .dropzone-icon svg {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
     }
 
     .controls {
@@ -431,7 +419,7 @@ body {
     .file-info {
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .download-button {
@@ -444,23 +432,14 @@ body {
 .compress-button:focus-visible,
 .download-button:focus-visible,
 .target-size-input:focus-visible {
-    outline: none;
-    box-shadow:
-        0 0 0 3px #667eea,
-        inset 3px 3px 6px #b8bec7,
-        inset -3px -3px 6px #ffffff;
+    outline: 4px solid #ff6b6b;
+    outline-offset: 2px;
 }
 
-/* High contrast / prefers-contrast */
+/* High contrast */
 @media (prefers-contrast: high) {
     .upload-dropzone {
-        box-shadow: none;
-        border: 2px solid #2d3436;
-    }
-
-    .compress-button:disabled,
-    .download-button:disabled {
-        opacity: 1;
+        border-width: 4px;
     }
 }
 
@@ -470,7 +449,6 @@ body {
     *::before,
     *::after {
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
 }
