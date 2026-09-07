@@ -10,6 +10,7 @@
     var targetSizeSelect = document.querySelector("#target-size");
     var customSizeInput = document.querySelector("#custom-size");
     var customUnitSelect = document.querySelector("#custom-unit");
+    var outputFormatSelect = document.querySelector("#output-format");
 
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     var MAX_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -50,7 +51,7 @@
         customUnitSelect.style.display = isCustom ? "" : "none";
     }
 
-    function compressImage(file, targetBytes) {
+    function compressImage(file, targetBytes, outputFormat) {
         return new Promise(function (resolve) {
             var img = new Image();
             var url = URL.createObjectURL(file);
@@ -62,6 +63,13 @@
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0);
                 URL.revokeObjectURL(url);
+
+                if (outputFormat === "image/png") {
+                    canvas.toBlob(function (blob) {
+                        resolve(blob);
+                    }, "image/png");
+                    return;
+                }
 
                 var low = 0.01;
                 var high = 1.0;
@@ -82,12 +90,12 @@
                             if (!best) {
                                 canvas.toBlob(function (b) {
                                     resolve(b);
-                                }, "image/jpeg", low);
+                                }, outputFormat, low);
                             } else {
                                 resolve(best);
                             }
                         }
-                    }, "image/jpeg", q);
+                    }, outputFormat, q);
                 }
 
                 tryQuality(0.5);
@@ -156,7 +164,8 @@
         compressButton.disabled = true;
         compressButton.classList.add("loading");
 
-        compressImage(selectedFile, targetBytes).then(function (blob) {
+        var outputFormat = outputFormatSelect.value;
+        compressImage(selectedFile, targetBytes, outputFormat).then(function (blob) {
             compressButton.classList.remove("loading");
             compressButton.disabled = false;
 
