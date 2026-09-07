@@ -71,9 +71,13 @@
     });
 
     // Drag events
-    dropzone.addEventListener("dragover", function (e) {
+    dropzone.addEventListener("dragenter", function (e) {
         e.preventDefault();
         dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragover", function (e) {
+        e.preventDefault();
     });
 
     dropzone.addEventListener("dragleave", function () {
