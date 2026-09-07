@@ -24,8 +24,8 @@
         </section>
 
         <section class="controls" aria-label="Compression settings">
-            <label for="target-size" class="target-size-label">Target Size</label>
-            <select id="target-size" class="target-size-input" aria-label="Target file size">
+            <label for="target-size" class="target-size-label">Maximum size</label>
+            <select id="target-size" class="target-size-input" aria-label="Maximum file size">
                 <option value="102400">100 KB</option>
                 <option value="256000">250 KB</option>
                 <option value="512000">500 KB</option>
@@ -33,7 +33,7 @@
                 <option value="2097152">2 MB</option>
                 <option value="custom">Custom</option>
             </select>
-            <input type="number" id="custom-size" class="target-size-input custom-size-input" min="1" max="102400" value="100" aria-label="Custom target size in kilobytes" style="display:none;">
+            <input type="number" id="custom-size" class="target-size-input custom-size-input" min="1" max="102400" value="100" aria-label="Custom maximum size in kilobytes" style="display:none;">
             <select id="custom-unit" class="target-size-input custom-unit-input" aria-label="Custom size unit" style="display:none;">
                 <option value="1024">KB</option>
                 <option value="1048576">MB</option>
