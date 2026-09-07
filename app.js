@@ -203,6 +203,10 @@
             document.querySelector(".final-size").textContent = formatSize(compressedSize);
             document.querySelector(".reduction-percent").textContent = reduction + "%";
 
+            if (compressedSize > targetBytes && outputFormat !== "image/png") {
+                console.warn("ASSERTION FAILED: " + formatSize(compressedSize) + " > " + formatSize(targetBytes));
+            }
+
             compressedBlobUrl = URL.createObjectURL(blob);
             document.querySelector(".compressed-preview").src = compressedBlobUrl;
             resultArea.classList.add("visible");
