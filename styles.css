@@ -313,6 +313,11 @@ body {
         width: 100%;
     }
 
+    .custom-size-input,
+    .custom-unit-input {
+        width: 100%;
+    }
+
     .file-info {
         flex-direction: column;
         align-items: center;
