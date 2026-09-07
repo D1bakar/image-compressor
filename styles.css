@@ -485,6 +485,10 @@ body {
 
 .preview-placeholder {
     position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.75rem;
     font-weight: 500;
     color: #adb5bd;
