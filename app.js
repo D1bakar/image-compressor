@@ -52,25 +52,23 @@
     }
 
     function compressImage(file, targetBytes, outputFormat) {
-        return new Promise(function (resolve) {
-            var img = new Image();
-            var url = URL.createObjectURL(file);
+        return createImageBitmap(file).then(function (imageBitmap) {
+            var canvas = document.createElement("canvas");
+            canvas.width = imageBitmap.width;
+            canvas.height = imageBitmap.height;
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(imageBitmap, 0, 0);
+            imageBitmap.close();
 
-            img.onload = function () {
-                var canvas = document.createElement("canvas");
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                var ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0);
-                URL.revokeObjectURL(url);
-
-                if (outputFormat === "image/png") {
+            if (outputFormat === "image/png") {
+                return new Promise(function (resolve) {
                     canvas.toBlob(function (blob) {
                         resolve(blob);
                     }, "image/png");
-                    return;
-                }
+                });
+            }
 
+            return new Promise(function (resolve) {
                 var low = 0.01;
                 var high = 1.0;
                 var best = null;
@@ -99,9 +97,7 @@
                 }
 
                 tryQuality(0.5);
-            };
-
-            img.src = url;
+            });
         });
     }
 
