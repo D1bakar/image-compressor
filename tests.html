@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyCompress - Test Runner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a2e; padding: 2rem; }
+        h1 { margin-bottom: 0.5rem; }
+        .summary { margin-bottom: 1.5rem; font-size: 1.1rem; }
+        .summary .pass { color: #16a34a; font-weight: 700; }
+        .summary .fail { color: #dc2626; font-weight: 700; }
+        .test-list { list-style: none; }
+        .test-item { padding: 0.6rem 1rem; margin-bottom: 0.4rem; border-radius: 6px; background: #fff; border-left: 4px solid #ccc; }
+        .test-item.pass { border-left-color: #16a34a; }
+        .test-item.fail { border-left-color: #dc2626; }
+        .test-name { font-weight: 600; }
+        .test-detail { font-size: 0.85rem; color: #6c6c80; margin-top: 0.2rem; }
+        button { padding: 0.6rem 1.5rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: #4361ee; color: #fff; margin-bottom: 1.5rem; }
+        button:hover { background: #3a56d4; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>TinyCompress Test Runner</h1>
+    <p class="summary" id="summary">Click "Run Tests" to start.</p>
+    <button id="run-btn">Run Tests</button>
+    <ul class="test-list" id="test-list"></ul>
+
+    <script src="app.js"></script>
+    <script>
+    (function () {
+        "use strict";
+
+        var runBtn = document.getElementById("run-btn");
+        var summary = document.getElementById("summary");
+        var testList = document.getElementById("test-list");
+
+        var COLORS = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#1abc9c"];
+        var FORMAT_MAP = { jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+
+        function createTestImage(width, height, color, format) {
+            return new Promise(function (resolve) {
+                var canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                var ctx = canvas.getContext("2d");
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, width, height);
+                for (var i = 0; i < 20; i++) {
+                    ctx.fillStyle = COLORS[i % COLORS.length];
+                    ctx.fillRect(Math.random() * width, Math.random() * height, Math.random() * 200 + 20, Math.random() * 200 + 20);
+                }
+                canvas.toBlob(function (blob) {
+                    resolve(blob);
+                }, FORMAT_MAP[format] || "image/jpeg", 0.92);
+            });
+        }
+
+        function assert(condition, message) {
+            return { pass: !!condition, message: message };
+        }
+
+        function runTest(name, fn) {
+            return fn().then(function (result) {
+                return { name: name, pass: result.pass, message: result.message };
+            }).catch(function (err) {
+                return { name: name, pass: false, message: "Error: " + err.message };
+            });
+        }
+
+        function renderResult(result) {
+            var li = document.createElement("li");
+            li.className = "test-item " + (result.pass ? "pass" : "fail");
+            li.innerHTML = '<div class="test-name">' + (result.pass ? "PASS" : "FAIL") + " " + result.name + '</div>' +
+                '<div class="test-detail">' + result.message + '</div>';
+            testList.appendChild(li);
+        }
+
+        function compressFile(file, targetBytes, format) {
+            if (typeof createImageBitmap === "function") {
+                return createImageBitmap(file).then(function (bmp) {
+                    var c = document.createElement("canvas");
+                    c.width = bmp.width;
+                    c.height = bmp.height;
+                    c.getContext("2d").drawImage(bmp, 0, 0);
+                    bmp.close();
+                    return c;
+                });
+            }
+            return new Promise(function (resolve) {
+                var url = URL.createObjectURL(file);
+                var img = new Image();
+                img.onload = function () {
+                    var c = document.createElement("canvas");
+                    c.width = img.naturalWidth;
+                    c.height = img.naturalHeight;
+                    c.getContext("2d").drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    resolve(c);
+                };
+                img.src = url;
+            }).then(function (canvas) {
+                return canvas;
+            });
+        }
+
+        function binarySearch(canvas, targetBytes, format) {
+            if (format === "image/png") {
+                return new Promise(function (resolve) {
+                    canvas.toBlob(function (b) { resolve(b); }, "image/png");
+                });
+            }
+            return new Promise(function (resolve) {
+                var low = 0.01, high = 1.0, best = null;
+                function tryQ(q) {
+                    canvas.toBlob(function (blob) {
+                        if (blob.size <= targetBytes) { best = blob; low = q; } else { high = q; }
+                        if (high - low > 0.01) { tryQ((low + high) / 2); }
+                        else { resolve(best || blob); }
+                    }, format, q);
+                }
+                tryQ(0.5);
+            });
+        }
+
+        var tests = [
+            { name: "1 KB JPEG", w: 10, h: 10, fmt: "jpeg", target: 1024 },
+            { name: "10 KB JPEG", w: 50, h: 50, fmt: "jpeg", target: 10240 },
+            { name: "100 KB JPEG", w: 200, h: 200, fmt: "jpeg", target: 102400 },
+            { name: "1 MB JPEG", w: 800, h: 800, fmt: "jpeg", target: 1048576 },
+            { name: "5 MB JPEG", w: 1600, h: 1600, fmt: "jpeg", target: 5242880 },
+            { name: "10 MB JPEG", w: 2400, h: 2400, fmt: "jpeg", target: 10485760 },
+            { name: "100 KB PNG", w: 200, h: 200, fmt: "png", target: 102400 },
+            { name: "100 KB WebP", w: 200, h: 200, fmt: "webp", target: 102400 },
+            { name: "Portrait 100 KB", w: 100, h: 400, fmt: "jpeg", target: 102400 },
+            { name: "Landscape 100 KB", w: 400, h: 100, fmt: "jpeg", target: 102400 },
+            { name: "Transparent PNG 100 KB", w: 200, h: 200, fmt: "png", target: 102400 },
+            { name: "Very large dims 100 KB", w: 3000, h: 2000, fmt: "jpeg", target: 102400 },
+        ];
+
+        function runAll() {
+            testList.innerHTML = "";
+            summary.textContent = "Running...";
+            runBtn.disabled = true;
+
+            var results = [];
+            var chain = Promise.resolve();
+
+            tests.forEach(function (t) {
+                chain = chain.then(function () {
+                    return runTest(t.name, function () {
+                        return createTestImage(t.w, t.h, COLORS[0], t.fmt).then(function (blob) {
+                            return binarySearch(
+                                (function () {
+                                    var c = document.createElement("canvas");
+                                    c.width = t.w; c.height = t.h;
+                                    var ctx = c.getContext("2d");
+                                    ctx.fillStyle = COLORS[0];
+                                    ctx.fillRect(0, 0, t.w, t.h);
+                                    return c;
+                                })(),
+                                t.target,
+                                FORMAT_MAP[t.fmt]
+                            );
+                        }).then(function (result) {
+                            var pass = t.fmt === "png" ? true : result.size <= t.target;
+                            return assert(pass,
+                                "Size: " + (result.size / 1024).toFixed(1) + " KB" +
+                                " | Target: " + (t.target / 1024).toFixed(1) + " KB" +
+                                (pass ? "" : " (EXCEEDED)")
+                            );
+                        });
+                    }).then(function (r) {
+                        results.push(r);
+                        renderResult(r);
+                    });
+                });
+            });
+
+            chain.then(function () {
+                var passed = results.filter(function (r) { return r.pass; }).length;
+                var failed = results.filter(function (r) { return !r.pass; }).length;
+                summary.innerHTML = '<span class="pass">' + passed + ' passed</span>, ' +
+                    '<span class="fail">' + failed + ' failed</span> out of ' + results.length;
+                runBtn.disabled = false;
+            });
+        }
+
+        runBtn.addEventListener("click", runAll);
+    })();
+    </script>
+</body>
+</html>
