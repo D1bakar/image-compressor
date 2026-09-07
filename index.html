@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyCompress - Image Compression Utility</title>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="logo.svg" alt="TinyCompress Logo" class="logo">
+            <p class="description">Compress images directly in your browser. No uploads, no servers.</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="upload-area" aria-label="Image upload">
+            <div class="upload-dropzone" role="button" tabindex="0" aria-label="Drop image here or click to browse">
+                <span class="dropzone-text">Drag & drop your image here</span>
+                <span class="dropzone-subtext">or click to browse</span>
+            </div>
+            <input type="file" id="file-input" class="file-input" accept="image/*" aria-label="Choose image file">
+        </section>
+
+        <section class="controls" aria-label="Compression settings">
+            <label for="target-size" class="target-size-label">Target Size (KB)</label>
+            <input type="number" id="target-size" class="target-size-input" min="1" max="10000" value="100" aria-label="Target file size in kilobytes">
+
+            <button type="button" class="compress-button" disabled aria-label="Compress image">Compress</button>
+        </section>
+
+        <section class="result-area" aria-label="Compression results">
+            <div class="preview-container">
+                <h3 class="preview-title">Original</h3>
+                <img src="" alt="Original image preview" class="preview-image original-preview">
+            </div>
+            <div class="preview-container">
+                <h3 class="preview-title">Compressed</h3>
+                <img src="" alt="Compressed image preview" class="preview-image compressed-preview">
+            </div>
+
+            <div class="file-info">
+                <p class="info-item">Original size: <span class="original-size">-</span></p>
+                <p class="info-item">Final size: <span class="final-size">-</span></p>
+                <p class="info-item">Reduction: <span class="reduction-percent">-</span></p>
+            </div>
+
+            <button type="button" class="download-button" disabled aria-label="Download compressed image">Download</button>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 TinyCompress. All compression happens locally in your browser.</p>
+    </footer>
+</body>
+</html>
