@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TinyCompress - Browser Image Compression</title>
     <meta name="description" content="Compress images directly in your browser. No uploads, no servers. JPEG, WebP, PNG support with quality optimization.">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#e9ecef">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header class="header">
-        <div class="header-content">
-            <h1 class="logo">TinyCompress</h1>
-            <p class="description">Compress images directly in your browser. No uploads, no servers.</p>
-        </div>
+        <h1 class="logo">TinyCompress</h1>
+        <p class="description">Compress images directly in your browser. No uploads, no servers.</p>
     </header>
 
     <main class="main">
@@ -34,7 +32,7 @@
         </section>
 
         <section class="controls" aria-label="Compression settings">
-            <label for="target-size" class="target-size-label">Maximum size</label>
+            <label for="target-size" class="target-size-label">Max size</label>
             <select id="target-size" class="target-size-input" aria-label="Maximum file size">
                 <option value="102400">100 KB</option>
                 <option value="256000">250 KB</option>
@@ -59,25 +57,39 @@
             <button type="button" class="compress-button" disabled aria-label="Compress image">Compress</button>
         </section>
 
-        <p class="format-note">JPEG and WebP support quality-based compression. PNG outputs lossless — exact size not guaranteed.</p>
+        <p class="format-note">JPEG & WebP use quality compression. PNG is lossless — size not guaranteed.</p>
 
         <section class="result-area" aria-label="Compression results">
-            <div class="preview-container">
-                <h3 class="preview-title">Original</h3>
-                <img src="" alt="Original image preview" class="preview-image original-preview">
-            </div>
-            <div class="preview-container">
-                <h3 class="preview-title">Compressed</h3>
-                <img src="" alt="Compressed image preview" class="preview-image compressed-preview">
+            <div class="preview-row">
+                <div class="preview-card">
+                    <h3 class="preview-title">Original</h3>
+                    <div class="preview-box">
+                        <img src="" alt="Original image" class="preview-image original-preview">
+                    </div>
+                    <p class="preview-size original-size">-</p>
+                </div>
+                <div class="preview-card">
+                    <h3 class="preview-title">Compressed</h3>
+                    <div class="preview-box">
+                        <img src="" alt="Compressed image" class="preview-image compressed-preview">
+                        <div class="preview-placeholder">Compress first</div>
+                    </div>
+                    <p class="preview-size final-size">-</p>
+                </div>
             </div>
 
             <div class="file-info">
-                <p class="info-item">Original size: <span class="original-size">-</span></p>
-                <p class="info-item">Final size: <span class="final-size">-</span></p>
                 <p class="info-item">Reduction: <span class="reduction-percent">-</span></p>
             </div>
 
-            <button type="button" class="download-button" disabled aria-label="Download compressed image">Download</button>
+            <button type="button" class="download-button" disabled aria-label="Download compressed image">
+                <svg class="download-icon" viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="7 10 12 15 17 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="15" x2="12" y2="3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Download
+            </button>
         </section>
     </main>
 

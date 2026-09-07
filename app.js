@@ -4,8 +4,6 @@
     var dropzone = document.querySelector(".upload-dropzone");
     var fileInput = document.querySelector("#file-input");
     var compressButton = document.querySelector(".compress-button");
-    var originalSize = document.querySelector(".original-size");
-    var originalPreview = document.querySelector(".original-preview");
     var resultArea = document.querySelector(".result-area");
     var targetSizeSelect = document.querySelector("#target-size");
     var customSizeInput = document.querySelector("#custom-size");
@@ -13,11 +11,12 @@
     var outputFormatSelect = document.querySelector("#output-format");
 
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
-    var MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+    var MAX_SIZE = 50 * 1024 * 1024;
 
     var selectedFile = null;
     var compressedBlobUrl = null;
     var compressedBlob = null;
+    var originalBlobUrl = null;
 
     function formatSize(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -26,10 +25,7 @@
     }
 
     function isValidImage(file) {
-        if (!ACCEPTED_TYPES.includes(file.type)) {
-            return false;
-        }
-        return true;
+        return ACCEPTED_TYPES.includes(file.type);
     }
 
     function handleError(message) {
@@ -163,6 +159,23 @@
         });
     }
 
+    function resetResult() {
+        var compressedPreview = document.querySelector(".compressed-preview");
+        var placeholder = document.querySelector(".preview-placeholder");
+        compressedPreview.src = "";
+        compressedPreview.style.display = "none";
+        placeholder.style.display = "";
+        document.querySelector(".final-size").textContent = "-";
+        document.querySelector(".reduction-percent").textContent = "-";
+        document.querySelector(".download-button").disabled = true;
+
+        if (compressedBlobUrl) {
+            URL.revokeObjectURL(compressedBlobUrl);
+            compressedBlobUrl = null;
+            compressedBlob = null;
+        }
+    }
+
     function handleFile(file) {
         if (!file) return;
 
@@ -176,23 +189,23 @@
             return;
         }
 
-        if (compressedBlobUrl) {
-            URL.revokeObjectURL(compressedBlobUrl);
-            compressedBlobUrl = null;
-            compressedBlob = null;
-        }
-
         selectedFile = file;
-        originalSize.textContent = formatSize(file.size);
-        document.querySelector(".download-button").disabled = true;
 
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            originalPreview.src = e.target.result;
-            resultArea.classList.add("visible");
-            compressButton.disabled = false;
-        };
-        reader.readAsDataURL(file);
+        if (originalBlobUrl) {
+            URL.revokeObjectURL(originalBlobUrl);
+        }
+        originalBlobUrl = URL.createObjectURL(file);
+
+        var originalPreview = document.querySelector(".original-preview");
+        originalPreview.src = originalBlobUrl;
+        originalPreview.style.display = "";
+
+        document.querySelector(".original-size").textContent = formatSize(file.size);
+
+        resetResult();
+
+        resultArea.classList.add("visible");
+        compressButton.disabled = false;
     }
 
     // Dropzone click
@@ -229,6 +242,9 @@
         compressButton.disabled = true;
         compressButton.classList.add("loading");
 
+        var compressedPreview = document.querySelector(".compressed-preview");
+        var placeholder = document.querySelector(".preview-placeholder");
+
         var outputFormat = outputFormatSelect.value;
         compressImage(selectedFile, targetBytes, outputFormat).then(function (blob) {
             compressButton.classList.remove("loading");
@@ -251,9 +267,12 @@
 
             compressedBlobUrl = URL.createObjectURL(blob);
             compressedBlob = blob;
-            document.querySelector(".compressed-preview").src = compressedBlobUrl;
+
+            compressedPreview.src = compressedBlobUrl;
+            compressedPreview.style.display = "";
+            placeholder.style.display = "none";
+
             document.querySelector(".download-button").disabled = false;
-            resultArea.classList.add("visible");
         });
     });
 
