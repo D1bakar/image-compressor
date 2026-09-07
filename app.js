@@ -7,6 +7,9 @@
     var originalSize = document.querySelector(".original-size");
     var originalPreview = document.querySelector(".original-preview");
     var resultArea = document.querySelector(".result-area");
+    var targetSizeSelect = document.querySelector("#target-size");
+    var customSizeInput = document.querySelector("#custom-size");
+    var customUnitSelect = document.querySelector("#custom-unit");
 
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     var MAX_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -26,6 +29,23 @@
 
     function handleError(message) {
         alert(message);
+    }
+
+    function getTargetSizeBytes() {
+        var value = targetSizeSelect.value;
+        if (value === "custom") {
+            var num = parseInt(customSizeInput.value, 10);
+            var unit = parseInt(customUnitSelect.value, 10);
+            if (isNaN(num) || num < 1) return 0;
+            return num * unit;
+        }
+        return parseInt(value, 10);
+    }
+
+    function toggleCustomSize() {
+        var isCustom = targetSizeSelect.value === "custom";
+        customSizeInput.style.display = isCustom ? "" : "none";
+        customUnitSelect.style.display = isCustom ? "" : "none";
     }
 
     function handleFile(file) {
@@ -69,6 +89,9 @@
     fileInput.addEventListener("change", function () {
         handleFile(fileInput.files[0]);
     });
+
+    // Target size change
+    targetSizeSelect.addEventListener("change", toggleCustomSize);
 
     // Drag events
     dropzone.addEventListener("dragenter", function (e) {
