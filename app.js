@@ -50,6 +50,53 @@
         customUnitSelect.style.display = isCustom ? "" : "none";
     }
 
+    function compressImage(file, targetBytes) {
+        return new Promise(function (resolve) {
+            var img = new Image();
+            var url = URL.createObjectURL(file);
+
+            img.onload = function () {
+                var canvas = document.createElement("canvas");
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(url);
+
+                var low = 0.01;
+                var high = 1.0;
+                var best = null;
+
+                function tryQuality(q) {
+                    canvas.toBlob(function (blob) {
+                        if (blob.size <= targetBytes) {
+                            best = blob;
+                            low = q;
+                        } else {
+                            high = q;
+                        }
+
+                        if (high - low > 0.01) {
+                            tryQuality((low + high) / 2);
+                        } else {
+                            if (!best) {
+                                canvas.toBlob(function (b) {
+                                    resolve(b);
+                                }, "image/jpeg", low);
+                            } else {
+                                resolve(best);
+                            }
+                        }
+                    }, "image/jpeg", q);
+                }
+
+                tryQuality(0.5);
+            };
+
+            img.src = url;
+        });
+    }
+
     function handleFile(file) {
         if (!file) return;
 
