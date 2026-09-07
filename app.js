@@ -143,6 +143,36 @@
     // Target size change
     targetSizeSelect.addEventListener("change", toggleCustomSize);
 
+    // Compress button
+    compressButton.addEventListener("click", function () {
+        if (!selectedFile) return;
+
+        var targetBytes = getTargetSizeBytes();
+        if (targetBytes <= 0) {
+            handleError("Please select a valid target size.");
+            return;
+        }
+
+        compressButton.disabled = true;
+        compressButton.classList.add("loading");
+
+        compressImage(selectedFile, targetBytes).then(function (blob) {
+            compressButton.classList.remove("loading");
+            compressButton.disabled = false;
+
+            var compressedSize = blob.size;
+            var originalBytes = selectedFile.size;
+            var reduction = ((1 - compressedSize / originalBytes) * 100).toFixed(1);
+
+            document.querySelector(".final-size").textContent = formatSize(compressedSize);
+            document.querySelector(".reduction-percent").textContent = reduction + "%";
+
+            var compressedUrl = URL.createObjectURL(blob);
+            document.querySelector(".compressed-preview").src = compressedUrl;
+            resultArea.classList.add("visible");
+        });
+    });
+
     // Drag events
     dropzone.addEventListener("dragenter", function (e) {
         e.preventDefault();
