@@ -113,12 +113,17 @@
                 });
             }
             return new Promise(function (resolve) {
-                var low = 0.01, high = 1.0, best = null;
+                var low = 0.01, high = 1.0, best = null, iter = 0;
                 function tryQ(q) {
+                    iter++;
+                    if (iter > 15 || high - low < 0.005) {
+                        resolve(best);
+                        return;
+                    }
                     canvas.toBlob(function (blob) {
                         if (blob.size <= targetBytes) { best = blob; low = q; } else { high = q; }
-                        if (high - low > 0.01) { tryQ((low + high) / 2); }
-                        else { resolve(best || blob); }
+                        if (high - low >= 0.005 && iter < 15) { tryQ((low + high) / 2); }
+                        else { resolve(best); }
                     }, format, q);
                 }
                 tryQ(0.5);
