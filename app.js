@@ -17,6 +17,7 @@
 
     var selectedFile = null;
     var compressedBlobUrl = null;
+    var compressedBlob = null;
 
     function formatSize(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -178,10 +179,12 @@
         if (compressedBlobUrl) {
             URL.revokeObjectURL(compressedBlobUrl);
             compressedBlobUrl = null;
+            compressedBlob = null;
         }
 
         selectedFile = file;
         originalSize.textContent = formatSize(file.size);
+        document.querySelector(".download-button").disabled = true;
 
         var reader = new FileReader();
         reader.onload = function (e) {
@@ -247,9 +250,28 @@
             }
 
             compressedBlobUrl = URL.createObjectURL(blob);
+            compressedBlob = blob;
             document.querySelector(".compressed-preview").src = compressedBlobUrl;
+            document.querySelector(".download-button").disabled = false;
             resultArea.classList.add("visible");
         });
+    });
+
+    // Download button
+    document.querySelector(".download-button").addEventListener("click", function () {
+        if (!compressedBlob) return;
+
+        var ext = "jpg";
+        var fmt = outputFormatSelect.value;
+        if (fmt === "image/png") ext = "png";
+        else if (fmt === "image/webp") ext = "webp";
+
+        var a = document.createElement("a");
+        a.href = compressedBlobUrl;
+        a.download = "compressed." + ext;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     });
 
     // Drag events
