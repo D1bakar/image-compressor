@@ -173,10 +173,13 @@
         var placeholder = document.querySelector(".preview-placeholder");
         compressedPreview.src = "";
         compressedPreview.style.display = "none";
+        compressedPreview.classList.remove("loaded");
         placeholder.style.display = "";
         document.querySelector(".final-size").textContent = "-";
+        document.querySelector(".final-size").classList.remove("has-value");
         document.querySelector(".reduction-percent").textContent = "-";
         document.querySelector(".download-button").disabled = true;
+        document.querySelector(".download-button").classList.remove("visible");
 
         if (compressedBlobUrl) {
             URL.revokeObjectURL(compressedBlobUrl);
@@ -208,8 +211,10 @@
         var originalPreview = document.querySelector(".original-preview");
         originalPreview.src = originalBlobUrl;
         originalPreview.style.display = "";
+        originalPreview.classList.add("loaded");
 
         document.querySelector(".original-size").textContent = formatSize(file.size);
+        document.querySelector(".original-size").classList.add("has-value");
 
         resetResult();
 
@@ -279,9 +284,14 @@
 
             compressedPreview.src = compressedBlobUrl;
             compressedPreview.style.display = "";
+            compressedPreview.classList.add("loaded");
             placeholder.style.display = "none";
 
-            document.querySelector(".download-button").disabled = false;
+            document.querySelector(".final-size").classList.add("has-value");
+
+            var dlBtn = document.querySelector(".download-button");
+            dlBtn.disabled = false;
+            dlBtn.classList.add("visible");
         });
     });
 

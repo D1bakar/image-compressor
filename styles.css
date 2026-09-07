@@ -25,6 +25,14 @@ body {
     padding: 2rem 1.5rem 1.75rem;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 
 .logo {
@@ -65,6 +73,18 @@ body {
     box-shadow:
         6px 6px 14px #c8ccd2,
         -6px -6px 14px #ffffff;
+    animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.upload-area { animation-delay: 0.1s; }
+.controls { animation-delay: 0.2s; }
+.result-area { animation-delay: 0.3s; }
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
 }
 
 /* Upload dropzone */
@@ -78,18 +98,27 @@ body {
     box-shadow:
         inset 4px 4px 8px #c8ccd2,
         inset -4px -4px 8px #ffffff;
-    transition: box-shadow 0.3s ease, background 0.3s ease;
+    transition:
+        box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .upload-dropzone:hover {
     background: #eef0f4;
+    transform: scale(1.005);
+}
+
+.upload-dropzone:active {
+    transform: scale(0.995);
 }
 
 .upload-dropzone.dragover {
     background: #e4f0ff;
     box-shadow:
-        inset 5px 5px 10px #c0c8d4,
-        inset -5px -5px 10px #ffffff;
+        inset 6px 6px 12px #b8c0cc,
+        inset -6px -6px 12px #ffffff;
+    transform: scale(0.99);
 }
 
 .dropzone-icon {
@@ -104,6 +133,15 @@ body {
     box-shadow:
         4px 4px 8px #c8ccd2,
         -4px -4px 8px #ffffff;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.upload-dropzone:hover .dropzone-icon {
+    transform: translateY(-3px);
+}
+
+.upload-dropzone.dragover .dropzone-icon {
+    transform: translateY(3px);
 }
 
 .dropzone-icon svg {
@@ -164,7 +202,7 @@ body {
     box-shadow:
         inset 3px 3px 6px #c8ccd2,
         inset -3px -3px 6px #ffffff;
-    transition: box-shadow 0.25s ease;
+    transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     -webkit-appearance: none;
     appearance: none;
 }
@@ -194,6 +232,11 @@ body {
     text-align: center;
     margin-top: -0.4rem;
     line-height: 1.4;
+    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
 }
 
 /* Buttons */
@@ -205,7 +248,10 @@ body {
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.3s ease;
     -webkit-appearance: none;
     appearance: none;
 }
@@ -220,14 +266,14 @@ body {
 }
 
 .compress-button:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow:
-        5px 5px 10px #c8ccd2,
-        -3px -3px 8px #ffffff;
+        6px 6px 12px #c8ccd2,
+        -4px -4px 10px #ffffff;
 }
 
 .compress-button:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.98);
     box-shadow:
         inset 2px 2px 4px rgba(0, 0, 0, 0.1),
         inset -2px -2px 4px rgba(255, 255, 255, 0.1);
@@ -257,7 +303,7 @@ body {
     border: 2px solid #ffffff;
     border-top-color: transparent;
     border-radius: 50%;
-    animation: spin 0.6s linear infinite;
+    animation: spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes spin {
@@ -273,15 +319,24 @@ body {
 
 .result-area.visible {
     display: flex;
-    animation: fadeUp 0.35s ease;
+    animation: liquidIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes liquidIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scaleY(0.95);
+    }
+    50% {
+        transform: translateY(-4px) scaleY(1.01);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
 }
 
-/* Preview row - side by side */
+/* Preview row */
 .preview-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -293,6 +348,17 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    animation: cardSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.preview-card:first-child { animation-delay: 0.1s; }
+.preview-card:last-child { animation-delay: 0.2s; }
+
+@keyframes cardSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
 }
 
 .preview-title {
@@ -316,6 +382,13 @@ body {
         inset 3px 3px 6px #c8ccd2,
         inset -3px -3px 6px #ffffff;
     position: relative;
+    transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.preview-box:hover {
+    box-shadow:
+        inset 4px 4px 8px #c0c4ca,
+        inset -4px -4px 8px #ffffff;
 }
 
 .preview-image {
@@ -323,6 +396,12 @@ body {
     height: 100%;
     object-fit: contain;
     border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.preview-image.loaded {
+    opacity: 1;
 }
 
 .preview-placeholder {
@@ -330,12 +409,19 @@ body {
     font-size: 0.75rem;
     font-weight: 500;
     color: #adb5bd;
+    transition: opacity 0.3s ease;
 }
 
 .preview-size {
     font-size: 0.75rem;
     font-weight: 600;
     color: #495057;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.1s;
+}
+
+.preview-size.has-value {
+    opacity: 1;
 }
 
 /* File info */
@@ -371,21 +457,38 @@ body {
     box-shadow:
         4px 4px 8px #c8ccd2,
         -2px -2px 6px #ffffff;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.3s ease;
+}
+
+.download-button.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .download-icon {
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.download-button:hover:not(:disabled) .download-icon {
+    transform: translateY(2px);
 }
 
 .download-button:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow:
-        5px 5px 10px #c8ccd2,
-        -3px -3px 8px #ffffff;
+        6px 6px 12px #c8ccd2,
+        -4px -4px 10px #ffffff;
 }
 
 .download-button:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.98);
     box-shadow:
         inset 2px 2px 4px rgba(0, 0, 0, 0.1),
         inset -2px -2px 4px rgba(255, 255, 255, 0.1);
@@ -406,6 +509,7 @@ body {
     padding: 1rem;
     font-size: 0.75rem;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
 }
 
 /* Mobile */
@@ -492,6 +596,7 @@ body {
     *::before,
     *::after {
         animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
         transition-duration: 0.01ms !important;
     }
 }
