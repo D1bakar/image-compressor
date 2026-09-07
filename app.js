@@ -52,53 +52,74 @@
         customUnitSelect.style.display = isCustom ? "" : "none";
     }
 
-    function compressImage(file, targetBytes, outputFormat) {
-        return createImageBitmap(file).then(function (imageBitmap) {
-            var canvas = document.createElement("canvas");
-            canvas.width = imageBitmap.width;
-            canvas.height = imageBitmap.height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(imageBitmap, 0, 0);
-            imageBitmap.close();
+    function canvasToTargetSize(canvas, targetBytes, outputFormat) {
+        if (outputFormat === "image/png") {
+            return new Promise(function (resolve) {
+                canvas.toBlob(function (blob) {
+                    resolve(blob);
+                }, "image/png");
+            });
+        }
 
-            if (outputFormat === "image/png") {
-                return new Promise(function (resolve) {
-                    canvas.toBlob(function (blob) {
-                        resolve(blob);
-                    }, "image/png");
-                });
+        return new Promise(function (resolve) {
+            var low = 0.01;
+            var high = 1.0;
+            var best = null;
+
+            function tryQuality(q) {
+                canvas.toBlob(function (blob) {
+                    if (blob.size <= targetBytes) {
+                        best = blob;
+                        low = q;
+                    } else {
+                        high = q;
+                    }
+
+                    if (high - low > 0.01) {
+                        tryQuality((low + high) / 2);
+                    } else {
+                        if (!best) {
+                            canvas.toBlob(function (b) {
+                                resolve(b);
+                            }, outputFormat, low);
+                        } else {
+                            resolve(best);
+                        }
+                    }
+                }, outputFormat, q);
             }
 
-            return new Promise(function (resolve) {
-                var low = 0.01;
-                var high = 1.0;
-                var best = null;
+            tryQuality(0.5);
+        });
+    }
 
-                function tryQuality(q) {
-                    canvas.toBlob(function (blob) {
-                        if (blob.size <= targetBytes) {
-                            best = blob;
-                            low = q;
-                        } else {
-                            high = q;
-                        }
+    function drawToCanvas(imageSource) {
+        var canvas = document.createElement("canvas");
+        canvas.width = imageSource.width || imageSource.naturalWidth;
+        canvas.height = imageSource.height || imageSource.naturalHeight;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(imageSource, 0, 0);
+        return canvas;
+    }
 
-                        if (high - low > 0.01) {
-                            tryQuality((low + high) / 2);
-                        } else {
-                            if (!best) {
-                                canvas.toBlob(function (b) {
-                                    resolve(b);
-                                }, outputFormat, low);
-                            } else {
-                                resolve(best);
-                            }
-                        }
-                    }, outputFormat, q);
-                }
-
-                tryQuality(0.5);
+    function compressImage(file, targetBytes, outputFormat) {
+        if (typeof createImageBitmap === "function") {
+            return createImageBitmap(file).then(function (imageBitmap) {
+                var canvas = drawToCanvas(imageBitmap);
+                imageBitmap.close();
+                return canvasToTargetSize(canvas, targetBytes, outputFormat);
             });
+        }
+
+        return new Promise(function (resolve) {
+            var url = URL.createObjectURL(file);
+            var img = new Image();
+            img.onload = function () {
+                var canvas = drawToCanvas(img);
+                URL.revokeObjectURL(url);
+                canvasToTargetSize(canvas, targetBytes, outputFormat).then(resolve);
+            };
+            img.src = url;
         });
     }
 
