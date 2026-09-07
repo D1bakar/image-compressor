@@ -177,7 +177,9 @@
         placeholder.style.display = "";
         document.querySelector(".final-size").textContent = "-";
         document.querySelector(".final-size").classList.remove("has-value");
-        document.querySelector(".reduction-percent").textContent = "-";
+        var reductionEl = document.querySelector(".reduction-percent");
+        reductionEl.textContent = "-";
+        reductionEl.style.color = "";
         document.querySelector(".download-button").disabled = true;
         document.querySelector(".download-button").classList.remove("visible");
 
@@ -270,10 +272,22 @@
 
             var compressedSize = blob.size;
             var originalBytes = selectedFile.size;
-            var reduction = ((1 - compressedSize / originalBytes) * 100).toFixed(1);
+            var diff = compressedSize - originalBytes;
+            var reductionPercent = ((1 - compressedSize / originalBytes) * 100).toFixed(1);
 
             document.querySelector(".final-size").textContent = formatSize(compressedSize);
-            document.querySelector(".reduction-percent").textContent = reduction + "%";
+
+            var reductionEl = document.querySelector(".reduction-percent");
+            if (diff > 0) {
+                reductionEl.textContent = "+" + formatSize(diff) + " larger";
+                reductionEl.style.color = "#e17055";
+            } else if (diff < 0) {
+                reductionEl.textContent = formatSize(Math.abs(diff)) + " saved";
+                reductionEl.style.color = "#00b894";
+            } else {
+                reductionEl.textContent = "Same size";
+                reductionEl.style.color = "#495057";
+            }
 
             if (compressedSize > targetBytes && outputFormat !== "image/png") {
                 console.warn("ASSERTION FAILED: " + formatSize(compressedSize) + " > " + formatSize(targetBytes));
