@@ -58,16 +58,55 @@
             });
         }
 
-        var SCALE_STEP = 0.75;
-        var MIN_SCALE = 0.1;
+        var MAX_QUALITY_ITERS = 20;
+        var MIN_QUALITY_STEP = 0.002;
+        var SCALE_STEP = 0.8;
+        var MIN_SCALE = 0.05;
         var scale = 1.0;
+
+        function encode(canvas, format, quality) {
+            return new Promise(function (resolve) {
+                canvas.toBlob(function (blob) {
+                    resolve(blob);
+                }, format, quality);
+            });
+        }
+
+        function binarySearch(cvs, format) {
+            var low = 0.01;
+            var high = 1.0;
+            var bestBlob = null;
+            var iter = 0;
+
+            return new Promise(function (resolve) {
+                function step(q) {
+                    iter++;
+                    encode(cvs, format, q).then(function (blob) {
+                        if (blob.size <= targetBytes) {
+                            bestBlob = blob;
+                            low = q;
+                        } else {
+                            high = q;
+                        }
+
+                        var range = high - low;
+                        if (range < MIN_QUALITY_STEP || iter >= MAX_QUALITY_ITERS) {
+                            resolve(bestBlob);
+                        } else {
+                            step((low + high) / 2);
+                        }
+                    });
+                }
+                step(0.5);
+            });
+        }
 
         function tryScale(resolve) {
             var w = Math.round(canvas.width * scale);
             var h = Math.round(canvas.height * scale);
 
             if (w < 4 || h < 4) {
-                canvas.toBlob(function (b) { resolve(b); }, outputFormat, 0.01);
+                encode(canvas, outputFormat, 0.01).then(resolve);
                 return;
             }
 
@@ -76,56 +115,26 @@
             resized.height = h;
             resized.getContext("2d").drawImage(canvas, 0, 0, w, h);
 
-            binarySearchQuality(resized, targetBytes, outputFormat).then(function (result) {
-                if (result.blob) {
-                    resolve(result.blob);
+            binarySearch(resized, outputFormat).then(function (blob) {
+                if (blob) {
+                    resolve(blob);
                 } else if (scale > MIN_SCALE) {
                     scale *= SCALE_STEP;
                     tryScale(resolve);
                 } else {
-                    resized.toBlob(function (b) { resolve(b); }, outputFormat, 0.01);
+                    encode(resized, outputFormat, 0.01).then(resolve);
                 }
             });
         }
 
         return new Promise(function (resolve) {
-            tryScale(resolve);
-        });
-    }
-
-    function binarySearchQuality(canvas, targetBytes, outputFormat) {
-        return new Promise(function (resolve) {
-            var low = 0.01;
-            var high = 1.0;
-            var bestBlob = null;
-            var iterations = 0;
-            var MAX_ITERATIONS = 15;
-
-            function tryQuality(q) {
-                iterations++;
-
-                if (iterations > MAX_ITERATIONS || high - low < 0.005) {
-                    resolve({ blob: bestBlob });
+            encode(canvas, outputFormat, 1.0).then(function (fullBlob) {
+                if (fullBlob.size <= targetBytes) {
+                    resolve(fullBlob);
                     return;
                 }
-
-                canvas.toBlob(function (blob) {
-                    if (blob.size <= targetBytes) {
-                        bestBlob = blob;
-                        low = q;
-                    } else {
-                        high = q;
-                    }
-
-                    if (high - low >= 0.005 && iterations < MAX_ITERATIONS) {
-                        tryQuality((low + high) / 2);
-                    } else {
-                        resolve({ blob: bestBlob });
-                    }
-                }, outputFormat, q);
-            }
-
-            tryQuality(0.5);
+                tryScale(resolve);
+            });
         });
     }
 
