@@ -16,6 +16,7 @@
     var MAX_SIZE = 50 * 1024 * 1024; // 50 MB
 
     var selectedFile = null;
+    var compressedBlobUrl = null;
 
     function formatSize(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -114,6 +115,11 @@
             return;
         }
 
+        if (compressedBlobUrl) {
+            URL.revokeObjectURL(compressedBlobUrl);
+            compressedBlobUrl = null;
+        }
+
         selectedFile = file;
         originalSize.textContent = formatSize(file.size);
 
@@ -165,6 +171,10 @@
             compressButton.classList.remove("loading");
             compressButton.disabled = false;
 
+            if (compressedBlobUrl) {
+                URL.revokeObjectURL(compressedBlobUrl);
+            }
+
             var compressedSize = blob.size;
             var originalBytes = selectedFile.size;
             var reduction = ((1 - compressedSize / originalBytes) * 100).toFixed(1);
@@ -172,8 +182,8 @@
             document.querySelector(".final-size").textContent = formatSize(compressedSize);
             document.querySelector(".reduction-percent").textContent = reduction + "%";
 
-            var compressedUrl = URL.createObjectURL(blob);
-            document.querySelector(".compressed-preview").src = compressedUrl;
+            compressedBlobUrl = URL.createObjectURL(blob);
+            document.querySelector(".compressed-preview").src = compressedBlobUrl;
             resultArea.classList.add("visible");
         });
     });
