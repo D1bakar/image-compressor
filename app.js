@@ -62,14 +62,14 @@
         }
 
         var SCALE_STEP = 0.75;
-        var MIN_SCALE = 0.25;
+        var MIN_SCALE = 0.1;
         var scale = 1.0;
 
         function tryScale(resolve) {
             var w = Math.round(canvas.width * scale);
             var h = Math.round(canvas.height * scale);
 
-            if (w < 10 || h < 10) {
+            if (w < 4 || h < 4) {
                 canvas.toBlob(function (b) { resolve(b); }, outputFormat, 0.01);
                 return;
             }
@@ -79,39 +79,56 @@
             resized.height = h;
             resized.getContext("2d").drawImage(canvas, 0, 0, w, h);
 
+            binarySearchQuality(resized, targetBytes, outputFormat).then(function (result) {
+                if (result.blob) {
+                    resolve(result.blob);
+                } else if (scale > MIN_SCALE) {
+                    scale *= SCALE_STEP;
+                    tryScale(resolve);
+                } else {
+                    resized.toBlob(function (b) { resolve(b); }, outputFormat, 0.01);
+                }
+            });
+        }
+
+        return new Promise(function (resolve) {
+            tryScale(resolve);
+        });
+    }
+
+    function binarySearchQuality(canvas, targetBytes, outputFormat) {
+        return new Promise(function (resolve) {
             var low = 0.01;
             var high = 1.0;
-            var best = null;
+            var bestBlob = null;
+            var iterations = 0;
+            var MAX_ITERATIONS = 15;
 
             function tryQuality(q) {
-                resized.toBlob(function (blob) {
+                iterations++;
+
+                if (iterations > MAX_ITERATIONS || high - low < 0.005) {
+                    resolve({ blob: bestBlob });
+                    return;
+                }
+
+                canvas.toBlob(function (blob) {
                     if (blob.size <= targetBytes) {
-                        best = blob;
+                        bestBlob = blob;
                         low = q;
                     } else {
                         high = q;
                     }
 
-                    if (high - low > 0.01) {
+                    if (high - low >= 0.005 && iterations < MAX_ITERATIONS) {
                         tryQuality((low + high) / 2);
                     } else {
-                        if (best) {
-                            resolve(best);
-                        } else if (scale > MIN_SCALE) {
-                            scale *= SCALE_STEP;
-                            tryScale(resolve);
-                        } else {
-                            resized.toBlob(function (b) { resolve(b); }, outputFormat, low);
-                        }
+                        resolve({ blob: bestBlob });
                     }
                 }, outputFormat, q);
             }
 
             tryQuality(0.5);
-        }
-
-        return new Promise(function (resolve) {
-            tryScale(resolve);
         });
     }
 
