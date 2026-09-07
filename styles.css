@@ -138,6 +138,13 @@ body {
     width: 75px;
 }
 
+.format-note {
+    font-size: 0.8rem;
+    color: #6c6c80;
+    text-align: center;
+    margin-top: -0.5rem;
+}
+
 /* Buttons base */
 .compress-button,
 .download-button {
