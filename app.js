@@ -61,13 +61,30 @@
             });
         }
 
-        return new Promise(function (resolve) {
+        var SCALE_STEP = 0.75;
+        var MIN_SCALE = 0.25;
+        var scale = 1.0;
+
+        function tryScale(resolve) {
+            var w = Math.round(canvas.width * scale);
+            var h = Math.round(canvas.height * scale);
+
+            if (w < 10 || h < 10) {
+                canvas.toBlob(function (b) { resolve(b); }, outputFormat, 0.01);
+                return;
+            }
+
+            var resized = document.createElement("canvas");
+            resized.width = w;
+            resized.height = h;
+            resized.getContext("2d").drawImage(canvas, 0, 0, w, h);
+
             var low = 0.01;
             var high = 1.0;
             var best = null;
 
             function tryQuality(q) {
-                canvas.toBlob(function (blob) {
+                resized.toBlob(function (blob) {
                     if (blob.size <= targetBytes) {
                         best = blob;
                         low = q;
@@ -78,18 +95,23 @@
                     if (high - low > 0.01) {
                         tryQuality((low + high) / 2);
                     } else {
-                        if (!best) {
-                            canvas.toBlob(function (b) {
-                                resolve(b);
-                            }, outputFormat, low);
-                        } else {
+                        if (best) {
                             resolve(best);
+                        } else if (scale > MIN_SCALE) {
+                            scale *= SCALE_STEP;
+                            tryScale(resolve);
+                        } else {
+                            resized.toBlob(function (b) { resolve(b); }, outputFormat, low);
                         }
                     }
                 }, outputFormat, q);
             }
 
             tryQuality(0.5);
+        }
+
+        return new Promise(function (resolve) {
+            tryScale(resolve);
         });
     }
 
