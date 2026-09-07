@@ -14,6 +14,8 @@
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     var MAX_SIZE = 50 * 1024 * 1024; // 50 MB
 
+    var selectedFile = null;
+
     function formatSize(bytes) {
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
@@ -61,6 +63,7 @@
             return;
         }
 
+        selectedFile = file;
         originalSize.textContent = formatSize(file.size);
 
         var reader = new FileReader();
