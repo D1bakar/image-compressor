@@ -9,6 +9,13 @@
     var customSizeInput = document.querySelector("#custom-size");
     var customUnitSelect = document.querySelector("#custom-unit");
     var outputFormatSelect = document.querySelector("#output-format");
+    var qualityBoostToggle = document.querySelector("#quality-boost");
+    var boostOptions = document.querySelector("#boost-options");
+    var boostSharpen = document.querySelector("#boost-sharpen");
+    var boostSharpenValue = document.querySelector("#boost-sharpen-value");
+    var boostNoise = document.querySelector("#boost-noise");
+    var boostNoiseValue = document.querySelector("#boost-noise-value");
+    var boostUpscale = document.querySelector("#boost-upscale");
 
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     var MAX_SIZE = 50 * 1024 * 1024;
@@ -41,6 +48,27 @@
             return num * unit;
         }
         return parseInt(value, 10);
+    }
+
+    function getBoostOptions() {
+        if (!qualityBoostToggle.checked) return null;
+        return {
+            sharpenAmount: parseInt(boostSharpen.value, 10) / 100,
+            noiseReductionStrength: parseInt(boostNoise.value, 10) / 100,
+            upscaleFactor: parseFloat(boostUpscale.value) || 1,
+            autoContrast: true,
+            autoColor: true
+        };
+    }
+
+    function toggleBoostOptions() {
+        var show = qualityBoostToggle.checked;
+        boostOptions.style.display = show ? "" : "none";
+    }
+
+    function updateSliderValues() {
+        boostSharpenValue.textContent = boostSharpen.value + "%";
+        boostNoiseValue.textContent = boostNoise.value + "%";
     }
 
     function toggleCustomSize() {
@@ -148,11 +176,27 @@
     }
 
     function compressImage(file, targetBytes, outputFormat) {
+        var boostOpts = getBoostOptions();
+
+        function processAndCompress(canvas) {
+            var enhanced = canvas;
+            if (boostOpts) {
+                enhanced = ImageProcessing.enhanceImage(canvas, boostOpts);
+            }
+
+            return canvasToTargetSize(enhanced, targetBytes, outputFormat).then(function (blob) {
+                if (boostOpts && boostOpts.sharpenAmount > 0) {
+                    return ImageProcessing.sharpenBlob(blob, outputFormat, boostOpts.sharpenAmount);
+                }
+                return blob;
+            });
+        }
+
         if (typeof createImageBitmap === "function") {
             return createImageBitmap(file).then(function (imageBitmap) {
                 var canvas = drawToCanvas(imageBitmap);
                 imageBitmap.close();
-                return canvasToTargetSize(canvas, targetBytes, outputFormat);
+                return processAndCompress(canvas);
             });
         }
 
@@ -162,7 +206,7 @@
             img.onload = function () {
                 var canvas = drawToCanvas(img);
                 URL.revokeObjectURL(url);
-                canvasToTargetSize(canvas, targetBytes, outputFormat).then(resolve);
+                processAndCompress(canvas).then(resolve);
             };
             img.src = url;
         });
@@ -244,6 +288,13 @@
 
     // Target size change
     targetSizeSelect.addEventListener("change", toggleCustomSize);
+
+    // Quality Boost toggle
+    qualityBoostToggle.addEventListener("change", toggleBoostOptions);
+
+    // Boost slider value updates
+    boostSharpen.addEventListener("input", updateSliderValues);
+    boostNoise.addEventListener("input", updateSliderValues);
 
     // Compress button
     compressButton.addEventListener("click", function () {

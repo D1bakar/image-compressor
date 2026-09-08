@@ -28,6 +28,7 @@
     <button id="run-btn">Run Tests</button>
     <ul class="test-list" id="test-list"></ul>
 
+    <script src="../src/imageProcessing.js"></script>
     <script src="../src/app.js"></script>
     <script>
     (function () {
@@ -130,6 +131,89 @@
             });
         }
 
+        function runEnhancementTest(t) {
+            return createTestImage(t.w, t.h, COLORS[0], t.fmt).then(function (blob) {
+                return new Promise(function (resolve) {
+                    var url = URL.createObjectURL(blob);
+                    var img = new Image();
+                    img.onload = function () {
+                        var canvas = document.createElement("canvas");
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        canvas.getContext("2d").drawImage(img, 0, 0);
+                        URL.revokeObjectURL(url);
+
+                        if (t.enhance === "noise") {
+                            ImageProcessing.noiseReduction(canvas, 0.3);
+                            var ctx = canvas.getContext("2d");
+                            var data = ctx.getImageData(0, 0, 1, 1).data;
+                            resolve({ pass: data.length === 4, message: "Noise reduction applied, pixel data valid" });
+                        } else if (t.enhance === "sharpen") {
+                            ImageProcessing.sharpen(canvas, 0.5, 1);
+                            var ctx2 = canvas.getContext("2d");
+                            var data2 = ctx2.getImageData(0, 0, 1, 1).data;
+                            resolve({ pass: data2.length === 4, message: "Sharpening applied, pixel data valid" });
+                        } else if (t.enhance === "contrast") {
+                            ImageProcessing.autoContrast(canvas);
+                            var ctx3 = canvas.getContext("2d");
+                            var data3 = ctx3.getImageData(0, 0, 1, 1).data;
+                            resolve({ pass: data3.length === 4, message: "Auto contrast applied, pixel data valid" });
+                        } else if (t.enhance === "color") {
+                            ImageProcessing.autoColor(canvas);
+                            var ctx4 = canvas.getContext("2d");
+                            var data4 = ctx4.getImageData(0, 0, 1, 1).data;
+                            resolve({ pass: data4.length === 4, message: "Auto color applied, pixel data valid" });
+                        } else if (t.enhance === "full") {
+                            var enhanced = ImageProcessing.enhanceImage(canvas, {
+                                sharpenAmount: 0.5,
+                                noiseReductionStrength: 0.3,
+                                autoContrast: true,
+                                autoColor: true
+                            });
+                            binarySearch(enhanced, t.target, FORMAT_MAP[t.fmt]).then(function (result) {
+                                var pass = result && result.size <= t.target;
+                                resolve({
+                                    pass: pass,
+                                    message: "Enhanced size: " + (result ? (result.size / 1024).toFixed(1) : 0) + " KB | Target: " + (t.target / 1024).toFixed(1) + " KB"
+                                });
+                            });
+                        } else if (t.enhance === "noisy") {
+                            var noisyCanvas = document.createElement("canvas");
+                            noisyCanvas.width = t.w;
+                            noisyCanvas.height = t.h;
+                            var nctx = noisyCanvas.getContext("2d");
+                            var nimgData = nctx.createImageData(t.w, t.h);
+                            for (var i = 0; i < nimgData.data.length; i += 4) {
+                                nimgData.data[i] = 128 + Math.random() * 127;
+                                nimgData.data[i + 1] = 128 + Math.random() * 127;
+                                nimgData.data[i + 2] = 128 + Math.random() * 127;
+                                nimgData.data[i + 3] = 255;
+                            }
+                            nctx.putImageData(nimgData, 0, 0);
+                            var origBlob, denoisedBlob;
+                            noisyCanvas.toBlob(function (b) {
+                                origBlob = b;
+                                var denoised = ImageProcessing.enhanceImage(noisyCanvas, {
+                                    noiseReductionStrength: 0.5,
+                                    autoContrast: true,
+                                    autoColor: true
+                                });
+                                denoised.toBlob(function (b2) {
+                                    denoisedBlob = b2;
+                                    var pass = denoisedBlob.size < origBlob.size;
+                                    resolve({
+                                        pass: pass,
+                                        message: "Original: " + (origBlob.size / 1024).toFixed(1) + " KB | Denoised: " + (denoisedBlob.size / 1024).toFixed(1) + " KB"
+                                    });
+                                }, FORMAT_MAP[t.fmt]);
+                            }, FORMAT_MAP[t.fmt], 0.9);
+                        }
+                    };
+                    img.src = url;
+                });
+            });
+        }
+
         var tests = [
             { name: "1 KB JPEG", w: 10, h: 10, fmt: "jpeg", target: 1024 },
             { name: "10 KB JPEG", w: 50, h: 50, fmt: "jpeg", target: 10240 },
@@ -143,6 +227,13 @@
             { name: "Landscape 100 KB", w: 400, h: 100, fmt: "jpeg", target: 102400 },
             { name: "Transparent PNG 100 KB", w: 200, h: 200, fmt: "png", target: 102400 },
             { name: "Very large dims 100 KB", w: 3000, h: 2000, fmt: "jpeg", target: 102400 },
+            // Enhancement tests
+            { name: "Noise reduction produces valid canvas", w: 100, h: 100, fmt: "jpeg", target: 10240, enhance: "noise" },
+            { name: "Sharpen produces valid canvas", w: 100, h: 100, fmt: "jpeg", target: 10240, enhance: "sharpen" },
+            { name: "Auto contrast produces valid canvas", w: 100, h: 100, fmt: "jpeg", target: 10240, enhance: "contrast" },
+            { name: "Auto color produces valid canvas", w: 100, h: 100, fmt: "jpeg", target: 10240, enhance: "color" },
+            { name: "Full boost pipeline 100 KB", w: 200, h: 200, fmt: "jpeg", target: 102400, enhance: "full" },
+            { name: "Boost noise reduction shrinks noisy image", w: 100, h: 100, fmt: "jpeg", target: 20480, enhance: "noisy" },
         ];
 
         function runAll() {
@@ -157,6 +248,9 @@
                 chain = chain.then(function () {
                     return runTest(t.name, function () {
                         return createTestImage(t.w, t.h, COLORS[0], t.fmt).then(function (blob) {
+                            if (t.enhance) {
+                                return runEnhancementTest(t);
+                            }
                             return binarySearch(
                                 (function () {
                                     var c = document.createElement("canvas");
@@ -170,11 +264,13 @@
                                 FORMAT_MAP[t.fmt]
                             );
                         }).then(function (result) {
-                            var pass = t.fmt === "png" ? true : result.size <= t.target;
+                            var pass = t.enhance ? result.pass : (t.fmt === "png" ? true : result.size <= t.target);
                             return assert(pass,
-                                "Size: " + (result.size / 1024).toFixed(1) + " KB" +
-                                " | Target: " + (t.target / 1024).toFixed(1) + " KB" +
-                                (pass ? "" : " (EXCEEDED)")
+                                t.enhance ? result.message : (
+                                    "Size: " + (result.size / 1024).toFixed(1) + " KB" +
+                                    " | Target: " + (t.target / 1024).toFixed(1) + " KB" +
+                                    (pass ? "" : " (EXCEEDED)")
+                                )
                             );
                         });
                     }).then(function (r) {

@@ -73,6 +73,35 @@
                 </select>
             </div>
 
+            <div class="controls-row boost-toggle-row">
+                <label class="toggle-label" for="quality-boost">
+                    <input type="checkbox" id="quality-boost">
+                    <span class="toggle-switch"></span>
+                    <span class="toggle-text">Quality Boost</span>
+                </label>
+            </div>
+
+            <div class="boost-options" id="boost-options" style="display:none;">
+                <div class="boost-option-row">
+                    <label class="boost-option-label" for="boost-sharpen">Sharpen</label>
+                    <input type="range" id="boost-sharpen" class="boost-slider" min="0" max="100" value="50">
+                    <span class="boost-slider-value" id="boost-sharpen-value">50%</span>
+                </div>
+                <div class="boost-option-row">
+                    <label class="boost-option-label" for="boost-noise">Noise reduction</label>
+                    <input type="range" id="boost-noise" class="boost-slider" min="0" max="100" value="30">
+                    <span class="boost-slider-value" id="boost-noise-value">30%</span>
+                </div>
+                <div class="boost-option-row">
+                    <label class="boost-option-label" for="boost-upscale">Upscale</label>
+                    <select id="boost-upscale" class="boost-select">
+                        <option value="1">None</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                </div>
+            </div>
+
             <button type="button" class="compress-button" disabled aria-label="Compress image">Compress</button>
         </section>
 
@@ -115,6 +144,7 @@
     <footer class="footer">
         <p>&copy; 2026 TinyCompress. All compression happens locally in your browser.</p>
     </footer>
+    <script src="imageProcessing.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
