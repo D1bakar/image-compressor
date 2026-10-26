@@ -16,6 +16,14 @@
     var boostNoise = document.querySelector("#boost-noise");
     var boostNoiseValue = document.querySelector("#boost-noise-value");
     var boostUpscale = document.querySelector("#boost-upscale");
+    var downloadButton = document.querySelector(".download-button");
+
+    if (!dropzone || !fileInput || !compressButton || !resultArea ||
+        !targetSizeSelect || !customSizeInput || !customUnitSelect || !outputFormatSelect ||
+        !qualityBoostToggle || !boostOptions || !boostSharpen || !boostSharpenValue ||
+        !boostNoise || !boostNoiseValue || !boostUpscale || !downloadButton) {
+        return;
+    }
 
     var ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     var MAX_SIZE = 50 * 1024 * 1024;
@@ -224,8 +232,8 @@
         var reductionEl = document.querySelector(".reduction-percent");
         reductionEl.textContent = "-";
         reductionEl.style.color = "";
-        document.querySelector(".download-button").disabled = true;
-        document.querySelector(".download-button").classList.remove("visible");
+        downloadButton.disabled = true;
+        downloadButton.classList.remove("visible");
 
         if (compressedBlobUrl) {
             URL.revokeObjectURL(compressedBlobUrl);
@@ -354,14 +362,13 @@
 
             document.querySelector(".final-size").classList.add("has-value");
 
-            var dlBtn = document.querySelector(".download-button");
-            dlBtn.disabled = false;
-            dlBtn.classList.add("visible");
+            downloadButton.disabled = false;
+            downloadButton.classList.add("visible");
         });
     });
 
     // Download button
-    document.querySelector(".download-button").addEventListener("click", function () {
+    downloadButton.addEventListener("click", function () {
         if (!compressedBlob) return;
 
         var ext = "jpg";
