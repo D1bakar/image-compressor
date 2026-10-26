@@ -18,6 +18,7 @@
     var boostUpscale = document.querySelector("#boost-upscale");
     var downloadButton = document.querySelector(".download-button");
 
+    // Safely exit when this script is loaded on pages without the full compressor UI.
     if (!dropzone || !fileInput || !compressButton || !resultArea ||
         !targetSizeSelect || !customSizeInput || !customUnitSelect || !outputFormatSelect ||
         !qualityBoostToggle || !boostOptions || !boostSharpen || !boostSharpenValue ||
